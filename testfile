@@ -1,0 +1,517 @@
+Pom .xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>HexawarePractise</groupId>
+  <artifactId>HexwareTestsampleframework</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+<dependencies>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.bonigarcia</groupId>
+			<artifactId>webdrivermanager</artifactId>
+			<version>4.3.1</version>
+		</dependency>
+
+		<dependency>
+			<!-- https://mvnrepository.com/artifact/org.testng/testng -->
+    <groupId>org.testng</groupId>
+    <artifactId>testng</artifactId>
+    <version>7.9.0</version>
+    <scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>4.1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>4.1.2 </version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-testng</artifactId>
+			<version>6.8.0</version>
+		</dependency>
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-java</artifactId>
+			<version>6.8.0</version>
+		</dependency>
+<!-- https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager -->
+<dependency>
+    <groupId>io.github.bonigarcia</groupId>
+    <artifactId>webdrivermanager</artifactId>
+    <version>5.7.0</version>
+</dependency>
+	<dependency>
+			<groupId>com.aventstack</groupId>
+			<artifactId>extentreports</artifactId>
+			<version>3.1.2</version>
+	</dependency>
+
+<dependency>
+		    <groupId>log4j</groupId>
+		    <artifactId>log4j</artifactId>
+		    <version>1.2.17</version>
+		</dependency>
+	</dependencies>
+
+
+</project>
+
+-----------------
+
+config .properties:
+
+url=https://demo.guru99.com/V1/index.php
+browser=chrome
+username=mngr575823
+password=gaqevYs
+
+-----
+
+TestBase:
+
+package GuruBankBase;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+public class TestBase {
+	
+	public static WebDriver driver;
+	private Properties prop;
+	private String urls;
+	//private String browsers;
+	private FileInputStream fis;
+	private String userName;
+	private String passWord;
+	
+	public Properties readProperties() throws IOException
+	{
+		prop= new Properties();
+		fis = new FileInputStream(System.getProperty("user.dir")+"\\src\\main\\resources\\config.properties");
+		prop.load(fis);
+		return prop;
+		
+	}
+	
+	public String geturl() throws IOException
+	{
+		prop=readProperties();
+		urls=prop.getProperty("url");
+		return urls;
+	}
+	
+	public String getUsername() throws IOException
+	{
+		prop=readProperties();
+		 userName = prop.getProperty("username");
+		 return userName;
+	}
+	
+	public String getPassword() throws InterruptedException, IOException
+	{
+		prop=readProperties();
+		passWord= prop.getProperty("password");
+		Thread.sleep(4000);
+	
+		return passWord;
+	}
+	
+	
+	public void loginButtonClick() throws InterruptedException
+	{
+		Thread.sleep(3000);
+		driver.findElement(By.xpath("//input[@type='submit']")).click();
+	}
+    public WebDriver getDriver() throws IOException, InterruptedException
+    {
+    	prop = readProperties();
+    	if(prop.getProperty("browser").equalsIgnoreCase("chrome"))
+    			{
+    		ChromeOptions options= new ChromeOptions();
+			options.addArguments("--remote-allow-origins=*");
+    		     WebDriverManager.chromedriver().setup();
+    		     driver=new ChromeDriver(options);
+    		     
+    			}
+    	driver.manage().window().maximize();
+	     Thread.sleep(4000);
+        return driver;
+    }
+}
+-------------------------
+CustomernewTestcase:
+package HexawareGuruTestcases;
+
+import java.io.IOException;
+
+import org.openqa.selenium.By;
+import org.testng.annotations.Parameters;
+import org.testng.annotations.Test;
+
+import GuruBankBase.TestBase;
+import HexwareGuruPages.GuruHomePage;
+import HexwareGuruPages.GuruLogoutPage;
+import HexwareGuruPages.GuruNewCustomerPage;
+
+public class HexaNewCustomerTestcase extends TestBase{
+	
+	@Test
+	@Parameters({"Cname","Cdob","Addr","Ccity","Cstate","Cpinnumber"})
+	public void newCustomertest(String Cname,String Cdob,String Addr,String Ccity,String Cstate,String Cpinnumber) throws IOException, InterruptedException
+	{
+		driver=getDriver();
+		driver.get(geturl());
+		driver.findElement(By.xpath("//input[@name='uid']")).sendKeys(getUsername());
+		driver.findElement(By.xpath("//input[@name='password']")).sendKeys(getPassword());
+		Thread.sleep(2000);
+		getUsername();
+		getPassword();
+		loginButtonClick();
+		GuruHomePage hp= new GuruHomePage(driver);
+				hp.newCusotmerPageLinkClick();
+		GuruNewCustomerPage cp = new GuruNewCustomerPage(driver);
+		cp.getCustomerName(Cname);
+		cp.getDateOfBirthCustomer(Cdob);
+		cp.getAddressCustomer(Addr);
+		cp.getCityCustomer(Ccity);
+		cp.getStateCustomer(Cstate);
+		cp.getPinnumberCustomer(Cpinnumber);
+		
+		GuruLogoutPage lp = new GuruLogoutPage(driver);
+		lp.customLogout();
+		lp.alertAccept();
+	}
+
+}
+
+utils package- report
+
+package HexawareUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.testng.ITestContext;
+import org.testng.ITestResult;
+import org.testng.TestListenerAdapter;
+
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
+import com.aventstack.extentreports.markuputils.ExtentColor;
+import com.aventstack.extentreports.markuputils.MarkupHelper;
+import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
+import com.aventstack.extentreports.reporter.configuration.ChartLocation;
+import com.aventstack.extentreports.reporter.configuration.Theme;
+
+
+	
+	public class ReportingGuru extends TestListenerAdapter
+	{
+		public ExtentHtmlReporter htmlReporter;
+		public ExtentReports extent;
+		public ExtentTest logger;
+		
+			
+		public void onStart(ITestContext testContext)
+		{
+			String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());//time stamp
+			String repName="Test-Report-"+timeStamp+".html";
+			
+			htmlReporter=new ExtentHtmlReporter(System.getProperty("user.dir")+ "/test-output/"+repName);//specify location of the report
+			htmlReporter.loadXMLConfig(System.getProperty("user.dir")+ "/extent-config.xml");
+			
+			extent=new ExtentReports();
+			
+			extent.attachReporter(htmlReporter);
+			extent.setSystemInfo("Host name","localhost");
+			extent.setSystemInfo("Environemnt","QA");
+			extent.setSystemInfo("user","Suresh");
+			
+			htmlReporter.config().setDocumentTitle("Guru99 Test Project"); // Tile of report
+			htmlReporter.config().setReportName("Functional Test Automation Report"); // name of the report
+			htmlReporter.config().setTestViewChartLocation(ChartLocation.TOP); //location of the chart
+			htmlReporter.config().setTheme(Theme.DARK);
+		}
+		
+		public void onTestSuccess(ITestResult tr)
+		{
+			logger=extent.createTest(tr.getName()); // create new entry in th report
+			logger.log(Status.PASS,MarkupHelper.createLabel(tr.getName(),ExtentColor.GREEN)); // send the passed information to the report with GREEN color highlighted
+		}
+		
+		public void onTestFailure(ITestResult tr)
+		{
+			logger=extent.createTest(tr.getName()); // create new entry in th report
+			logger.log(Status.FAIL,MarkupHelper.createLabel(tr.getName(),ExtentColor.RED)); // send the passed information to the report with GREEN color highlighted
+			
+			String screenshotPath=System.getProperty("user.dir")+"\\Screenshots\\"+tr.getName()+".png";
+			
+			File f = new File(screenshotPath); 
+			
+			if(f.exists())
+			{
+			try {
+				logger.fail("Screenshot is below:" + logger.addScreenCaptureFromPath(screenshotPath));
+				} 
+			catch (IOException e) 
+					{
+					e.printStackTrace();
+					}
+			}
+			
+		}
+		
+		public void onTestSkipped(ITestResult tr)
+		{
+			logger=extent.createTest(tr.getName()); // create new entry in th report
+			logger.log(Status.SKIP,MarkupHelper.createLabel(tr.getName(),ExtentColor.ORANGE));
+		}
+		
+		public void onFinish(ITestContext testContext)
+		{
+			extent.flush();
+		}
+	}
+
+----Pages - Home Pages -
+package HexwareGuruPages;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class GuruHomePage {
+	
+	WebDriver driver;
+	
+	public GuruHomePage(WebDriver driver)
+	{
+		this.driver=driver;
+		PageFactory.initElements(driver,this);
+	}
+	
+    @FindBy(xpath="//a[contains(text(),'New Customer')]")
+    WebElement newCustomerlinkclick;
+
+
+public GuruNewCustomerPage newCusotmerPageLinkClick()
+{
+	newCustomerlinkclick.click();
+	return new GuruNewCustomerPage(driver);
+}
+}
+
+-----Logout Page --
+package HexwareGuruPages;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class GuruLogoutPage {
+	
+	WebDriver driver;
+	
+	public GuruLogoutPage(WebDriver driver)
+	{
+		this.driver=driver;
+		PageFactory.initElements(driver, this);
+	}
+
+	@FindBy(xpath="//a[contains(text(),'Log out')]")
+	WebElement customerLogOut;
+	
+	public void customLogout()
+	{
+		customerLogOut.click();
+	}
+	
+	public void alertAccept()
+	{
+		driver.switchTo().alert().accept();
+	}
+}
+---New customer Page --
+package HexwareGuruPages;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.WrapsElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class GuruNewCustomerPage {
+	
+	WebDriver driver;
+	
+	public GuruNewCustomerPage(WebDriver driver)
+	{
+		this.driver=driver;
+		PageFactory.initElements(driver, this);
+	}
+    //customer name 
+	@FindBy(name="name")
+	WebElement customerName;
+	
+	//Date of Brith selection 
+	
+	@FindBy(xpath="//input[@type='date']")
+	WebElement dateofBirthCustomer;
+	
+	//Address
+	
+	@FindBy(name="addr")
+	WebElement customerAddress;
+	
+	
+	//City 
+	
+	@FindBy(name="city")
+	WebElement customerCity;
+
+	//State 
+	
+	@FindBy(name="state")
+	WebElement customerState;
+	
+	//Pin
+	@FindBy(name="pinno")
+	WebElement customerPinNumber;
+	
+	//Email 
+	@FindBy(name="emailid")
+	WebElement customeEmailid;
+	
+	//Submit button :
+
+	
+	public void getCustomerName(String cName)
+	{
+		customerName.sendKeys(cName);
+	}
+	
+	public void getDateOfBirthCustomer(String dobCustomer)
+	{
+		dateofBirthCustomer.sendKeys(dobCustomer);
+	}
+	public void getAddressCustomer(String addressCutomer)
+	{
+		customerAddress.sendKeys(addressCutomer);
+	}
+	
+	public void getCityCustomer(String cityCutomer)
+	{
+		customerCity.sendKeys(cityCutomer);
+	}
+	
+	public void getStateCustomer(String stateCutomer)
+	{
+		customerState.sendKeys(stateCutomer);
+	}
+	
+	public void getPinnumberCustomer(String pinCutomer)
+	{
+		customerPinNumber.sendKeys(pinCutomer);
+	}
+	
+	/*
+	 * public GuruLogoutPage getEmailCustomer(String emailCustomer) {
+	 * submitButtonClick.click(); return new GuruLogoutPage(driver); }
+	 */
+}
+----under test output folder -- extentconfig.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<extentreports>
+    <configuration>
+        <!-- report theme -->
+        <!-- standard, dark -->
+        <theme>dark</theme>
+    
+        <!-- document encoding -->
+        <!-- defaults to UTF-8 -->
+        <encoding>UTF-8</encoding>
+        
+        <!-- protocol for script and stylesheets -->
+        <!-- defaults to https -->
+        <protocol>https</protocol>
+        
+        <!-- title of the document -->
+        <documentTitle>Extent</documentTitle>
+        
+        <!-- report name - displayed at top-nav -->
+        <reportName>Automation Report</reportName>
+        
+        <!-- location of charts in the test view -->
+        <!-- top, bottom -->
+        <testViewChartLocation>bottom</testViewChartLocation>
+		
+        <!-- custom javascript -->
+        <scripts>
+            <![CDATA[
+                $(document).ready(function() {
+                    
+                });
+            ]]>
+        </scripts>
+        
+        <!-- custom styles -->
+        <styles>
+            <![CDATA[
+                
+            ]]>
+        </styles>
+    </configuration>
+</extentreports>
+
+----------testngxmlfile--------
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Suite">
+<listeners>
+		<listener class-name="HexawareUtils.ReportingGuru"/>
+	</listeners> 
+  <test thread-count="5" name="Test">
+  
+<parameter name="Cname" value="Suresh"></parameter>
+<parameter name="Cdob" value="10/10/1990"></parameter>
+<parameter name="Addr" value="Chennai address"></parameter>
+<parameter name="Ccity" value="Chennai"></parameter>
+<parameter name="Cstate" value="Tamilnadu"></parameter>
+<parameter name="Cpinnumber" value="7655555"></parameter>
+
+<classes>
+<class name="HexawareGuruTestcases.HexaNewCustomerTestcase"/> 
+    
+</classes>
+</test> <!-- Test -->
+</suite> <!-- Suite -->
+
+
+
